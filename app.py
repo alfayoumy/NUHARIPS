@@ -300,8 +300,9 @@ refresh_IPS = '...'
 refresh_HAR = '...'
 prev_har = []
 prev_ips = []
-EVENTS_RECORDED = 10    #will be 240 for 1 hour
-THRESHOLD = 9           #will be 220
+EVENTS_RECORDED = 10    #will be 120 for 1 hour
+THRESHOLD = 9           #will be 105
+SLEEP = 5               #will be 30
 
 while True:
     ips_bool = False
@@ -310,7 +311,7 @@ while True:
     #db.child("esp2").remove()
     #db.child("esp3").remove()
     #db.child("readings").remove()
-    time.sleep(5)
+    time.sleep(SLEEP)
     
     with placeholder.container():
         st.write('# Indoor Positioning System')
@@ -380,7 +381,7 @@ while True:
             har_counter = collections.Counter(prev_har)
             har_counter = list(har_counter.most_common(1)[0])
             if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
-                event = "User has been " + har_counter[0] + " in " + ips_counter[0] + " for 1 hour."
+                event = "User has been " + har_counter[0] + " in " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
                 event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 record_event(event_ts, ips_pred, har_pred, event)
                 st.error('Alarming activity detected!')
