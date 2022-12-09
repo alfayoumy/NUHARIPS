@@ -39,7 +39,7 @@ def connect_firebase():
     return firebase.database()
 
 def load_IPS_models():
-    models_path = '/app/grad_project/IPS_models/'
+    models_path = '/app/NUHARIPS/IPS_models/'
     all_models = glob.glob(os.path.join(models_path , "*.pkl"))
     clfs = []
     for model_path in all_models:
@@ -50,14 +50,14 @@ def load_IPS_models():
 
 def load_HAR_model(model_name):
     if model_name == 'lstm':
-        h5_path = '/app/grad_project/HAR_models/lstm51.h5'
-        json_path = '/app/grad_project/HAR_models/lstm51.json'
+        h5_path = '/app/NUHARIPS/HAR_models/lstm51.h5'
+        json_path = '/app/NUHARIPS/HAR_models/lstm51.json'
     elif model_name == 'cnn':
-        h5_path = '/app/grad_project/HAR_models/cnn51.h5'
-        json_path = '/app/grad_project/HAR_models/cnn51.json'
+        h5_path = '/app/NUHARIPS/HAR_models/cnn51.h5'
+        json_path = '/app/NUHARIPS/HAR_models/cnn51.json'
     elif model_name == 'ann':
-        h5_path = '/app/grad_project/HAR_models/ann51.h5'
-        json_path = '/app/grad_project/HAR_models/ann51.json'
+        h5_path = '/app/NUHARIPS/HAR_models/ann51.h5'
+        json_path = '/app/NUHARIPS/HAR_models/ann51.json'
 
     json_file = open(json_path, 'r')
     loaded_model_json = json_file.read()
@@ -277,13 +277,13 @@ try:
     success1 = st.success("Successfully connected to the database.", icon = "✅")
 
     clfs = load_IPS_models()
-    sc_ips=joblib.load('/app/grad_project/IPS_models/std_scaler.bin')
+    sc_ips=joblib.load('/app/NUHARIPS/IPS_models/std_scaler.bin')
     success2 = st.success("Successfully loaded IPS models.", icon = "✅")
 
     loaded_lstm = load_HAR_model('lstm')
     loaded_cnn = load_HAR_model('cnn')
     loaded_ann = load_HAR_model('ann')
-    sc_har=joblib.load('/app/grad_project/HAR_models/std_scaler5.bin')
+    sc_har=joblib.load('/app/NUHARIPS/HAR_models/std_scaler5.bin')
     success3 = st.success("Successfully loaded HAR models.", icon = "✅")
 except:
     st.warning('Something went wrong. Please try again later.', icon="⚠️")
@@ -321,7 +321,7 @@ while True:
             ips_bool = True
             
             if ips_pred == 'room_3':
-                image = Image.open('/app/grad_project/resources/rooms/r3.png')
+                image = Image.open('/app/NUHARIPS/resources/rooms/r3.png')
                 st.image(image)
             
             
