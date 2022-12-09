@@ -367,5 +367,16 @@ while True:
                 st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
                     st.error('Supervisor is notified!')                
-                
-        st_df = st.dataframe(get_events())
+        
+        hide_table_row_index = """
+            <style>
+            thead tr th:first-child {display:none}
+            tbody th {display:none}
+            </style>
+            """
+
+        # Inject CSS with Markdown
+        st.markdown(hide_table_row_index, unsafe_allow_html=True)
+
+        # Display a static table
+        st.table(get_events())
