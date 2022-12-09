@@ -306,6 +306,11 @@ THRESHOLD = 9           #will be 220
 while True:
     ips_bool = False
     har_bool = False
+    #db.child("esp1").remove()
+    #db.child("esp2").remove()
+    #db.child("esp3").remove()
+    #db.child("readings").remove()
+    time.sleep(5)
     
     with placeholder.container():
         st.write('# Indoor Positioning System')
@@ -313,18 +318,14 @@ while True:
         
         try:
             refresh_IPS = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-            #db.child("esp1").remove()
-            #db.child("esp2").remove()
-            #db.child("esp3").remove()
-            #time.sleep(45)
-            
+
             predictions_df = run_IPS()
             
             st.write('## Predictions: ')
             st.dataframe(predictions_df)
             st.write('Mode:', predictions_df.mode()['Prediction'][0])
             ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
-            st.write('### Voting Result:', ips_pred)
+            st.write('### Final Prediction:', ips_pred)
             prev_ips.append(ips_pred)
             
             ips_bool = True
@@ -332,7 +333,6 @@ while True:
             if ips_pred == 'room_3':
                 image = Image.open('/app/nuharips/resources/rooms/r3.png')
                 st.image(image)
-            
             
         except:
             st.warning('IPS System is Offline!', icon="⚠️")
@@ -344,8 +344,7 @@ while True:
 
         try:
             refresh_HAR = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-            #db.child("readings").remove()
-            time.sleep(5)            
+         
             lstm_activity, cnn_activity, ann_activity = run_HAR()
             
             st.write('## Predictions: ')

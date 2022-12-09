@@ -18,7 +18,7 @@ name, authentication_status, username = authenticator.login('Login', 'main')
 if authentication_status == True:
     authenticator.logout('Logout', 'main')
     st.success('Login successful.', icon = "✅")
-    exec(open('framework_app.py').read())
+    exec(open('app.py').read())
 elif authentication_status == False:
     st.error('Username/password is incorrect')
 elif authentication_status == None:
