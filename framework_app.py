@@ -363,11 +363,8 @@ while True:
                 event = "User is laying down in the bathroom"
                 event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 record_event(event_ts, ips_pred, har_pred, event)
-                error1 = st.error('Alarming activity detected!')
+                st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
-                    error2 = st.error('Supervisor is notified!')
-            else:
-                error1.empty()
-                error2.empty()
+                    st.error('Supervisor is notified!')                
                 
         st_df = st.dataframe(get_events())
