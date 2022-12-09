@@ -356,6 +356,7 @@ while True:
             st.warning('HAR System is Offline!', icon="⚠️")
     
     placeholder3.empty()
+    sleep(0.01)
     with placeholder3.container():
         st.write('# Events Record')
         if(ips_bool and har_bool):
