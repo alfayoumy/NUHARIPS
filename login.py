@@ -3,7 +3,7 @@ import streamlit_authenticator as stauth
 import yaml
 import os
 
-with open('/app/NUHARIPS/config.yaml') as file:
+with open('/app/nuharips/config.yaml') as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
 authenticator = stauth.Authenticate(
