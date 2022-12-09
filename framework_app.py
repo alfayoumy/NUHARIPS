@@ -300,8 +300,8 @@ refresh_IPS = '...'
 refresh_HAR = '...'
 prev_har = []
 prev_ips = []
-EVENTS_RECORDED = 10
-THRESHOLD = 9
+EVENTS_RECORDED = 10    #will be 240 for 1 hour
+THRESHOLD = 9           #will be 220
 
 while True:
     ips_bool = False
@@ -324,7 +324,7 @@ while True:
             st.dataframe(predictions_df)
             st.write('Mode:', predictions_df.mode()['Prediction'][0])
             ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
-            st.write('Voting Result:', ips_pred)
+            st.write('### Voting Result:', ips_pred)
             prev_ips.append(ips_pred)
             
             ips_bool = True
@@ -354,7 +354,7 @@ while True:
             st.write("ANN Prediction: ", ann_activity)
             
             har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
-            st.write("Final Prediction: ", har_pred)
+            st.write("### Final Prediction: ", har_pred)
             prev_har.append(har_pred)
             
             har_bool = True
