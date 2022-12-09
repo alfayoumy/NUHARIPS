@@ -191,7 +191,7 @@ def get_events():
     events_df = events_df.sort_values('Event Timestamp', ascending=False)
     return events_df
 
-
+"""
 @contextmanager
 def st_capture(output_func):
     with StringIO() as stdout, redirect_stdout(stdout):
@@ -204,7 +204,7 @@ def st_capture(output_func):
         
         stdout.write = new_write
         yield
-
+"""
 
 def gmail_send_message():
     """Create and send an email message
@@ -259,7 +259,7 @@ def gmail_send_message():
         print(F'An error occurred: {error}')
         send_message = None
     return send_message
-    
+ 
 
 ################################################################################################
 
@@ -354,9 +354,9 @@ while True:
             
         except:
             st.warning('HAR System is Offline!', icon="⚠️")
-       
+    
+    placeholder3.empty()
     with placeholder3.container():
-        placeholder3.empty()
         st.write('# Events Record')
         if(ips_bool and har_bool):
             if har_pred == 'Laying Down' and ips_pred == 'room_3':
