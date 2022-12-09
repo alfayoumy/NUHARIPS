@@ -357,6 +357,7 @@ while True:
         st.write('# Events Record')
         error1 = st.empty()
         error2 = st.empty()
+        st_df = st.empty()
         if(ips_bool and har_bool):
             if har_pred == 'Laying Down' and ips_pred == 'room_3':
                 event = "User is laying down in the bathroom"
@@ -369,4 +370,4 @@ while True:
                 error1.empty()
                 error2.empty()
                 
-        st.dataframe(get_events())
+        st_df = st.dataframe(get_events())
