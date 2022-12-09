@@ -21,6 +21,7 @@ import base64
 from email.message import EmailMessage
 import json
 import os
+import collections
 
 from contextlib import contextmanager, redirect_stdout
 from io import StringIO
@@ -297,6 +298,8 @@ placeholder2 = st.empty()
 placeholder3 = st.empty()
 refresh_IPS = '...'
 refresh_HAR = '...'
+prev_har = []
+prev_ips = []
 
 while True:
     ips_bool = False
@@ -320,6 +323,7 @@ while True:
             st.write('Mode:', predictions_df.mode()['Prediction'][0])
             ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
             st.write('Voting Result:', ips_pred)
+            prev_ips.append(ips_pred)
             
             ips_bool = True
             
@@ -339,8 +343,7 @@ while True:
         try:
             refresh_HAR = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
             db.child("readings").remove()
-            time.sleep(30)
-            
+            time.sleep(30)            
             lstm_activity, cnn_activity, ann_activity = run_HAR()
             
             st.write('## Predictions: ')
@@ -350,6 +353,7 @@ while True:
             
             har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
             st.write("Final Prediction: ", har_pred)
+            prev_har.append(har_pred)
             
             har_bool = True
             
@@ -368,6 +372,17 @@ while True:
                 st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
                     st.error('Supervisor is notified!')                
+            
+            if len(prev_har) == 5 and len(prev_ips) == 5:
+                ips_counter = collections.Counter(prev_ips)
+                ips_counter = list(ips_counter.most_common(1)[0])
+                har_counter = collections.Counter(prev_har)
+                har_counter = list(har_counter.most_common(1)[0])
+                if ips_counter[1] >= 4 and har_counter[1] >= 4:
+                    st.write(ips_counter[0], har_counter[0])
+                    prev_har = []
+                    prev_ips = []
+        
         
         hide_table_row_index = """
             <style>
