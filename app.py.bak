@@ -1,0 +1,211 @@
+import Pyrebase4 as pyrebase
+import streamlit as st
+import time
+import pytz
+from datetime import datetime
+import os
+import glob
+import pandas as pd
+import numpy as np
+import joblib
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, log_loss
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC, LinearSVC, NuSVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from keras.models import model_from_json
+from scipy import stats
+
+
+models_path = '/app/grad_project/IPS_models/'
+all_models = glob.glob(os.path.join(models_path , "*.pkl"))
+
+firebaseConfig={  "apiKey": st.secrets["apiKey"],
+  "authDomain": st.secrets["authDomain"],
+  "databaseURL": st.secrets["databaseURL"],
+  "projectId": st.secrets["projectId"],
+  "storageBucket": st.secrets["storageBucket"],
+  "messagingSenderId": st.secrets["messagingSenderId"],
+  "appId": st.secrets["appId"],
+  "measurementId": st.secrets["measurementId"] }
+
+firebase=pyrebase.initialize_app(firebaseConfig)
+
+db=firebase.database()
+st.success("Successfully connected to the database.")
+
+clfs = []
+for model_path in all_models:
+    clf = joblib.load(filename=model_path)
+    clfs.append(clf)
+st.success("Successfully loaded IPS models.")
+
+
+dt_string = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+
+random_seed = 42
+n_time_steps = 200
+n_features = 19
+step = 40
+n_classes = 3
+n_epochs = 100
+batch_size = 1024
+learning_rate = 0.0025
+l2_loss = 0.0015
+activities = ['Laying Down', 'Sitting', 'Walking']
+
+def LoadModel(model_name):
+    if model_name == 'lstm':
+        h5_path = '/app/grad_project/HAR_models/lstm2.h5'
+        json_path = '/app/grad_project/HAR_models/lstm2.json'
+    elif model_name == 'cnn':
+        h5_path = '/app/grad_project/HAR_models/cnn.h5'
+        json_path = '/app/grad_project/HAR_models/cnn.json'
+    elif model_name == 'ann':
+        h5_path = '/app/grad_project/HAR_models/ann.h5'
+        json_path = '/app/grad_project/HAR_models/ann.json'
+
+    json_file = open(json_path, 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights(h5_path)
+    loaded_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(f"Loaded {model_name.upper()} model from disk")
+
+    return loaded_model
+ 
+loaded_lstm = LoadModel('lstm')
+loaded_cnn = LoadModel('cnn')
+loaded_ann = LoadModel('ann')
+st.success("Successfully loaded HAR models.")
+
+sc_ips=joblib.load('/app/grad_project/IPS_models/std_scaler.bin')
+sc_har=joblib.load('/app/grad_project/HAR_models/std_scaler.bin')
+
+# creating a single-element container.
+placeholder = st.empty()
+while True:
+    with placeholder.container():
+        st.write('Last Refresh:', datetime.now(pytz.timezone("Africa/Cairo")))
+        #db.child("esp1").remove()
+        #db.child("esp2").remove()
+        #db.child("esp3").remove()
+        esp1_readings = db.child("esp1").get()
+        esp2_readings = db.child("esp2").get()
+        esp3_readings = db.child("esp3").get()
+        frames = [esp1_readings, esp2_readings, esp3_readings]
+
+        dfs = []
+        count = 1
+        for frame in frames:
+            timestamps = []
+            for i in frame.each():
+                timestamps.append(i.key())
+            frame = pd.DataFrame.from_dict(dict(frame.val()), orient='index').reset_index(drop=True)
+            frame.rename(columns = {'rssi': 'esp' + str(count)}, inplace = True)
+            frame['timestamp'] = timestamps
+            frame['timestamp'] = pd.to_datetime(frame.timestamp, unit='s').dt.tz_localize('UTC').dt.tz_convert('Africa/Cairo')
+            dfs.append(frame)
+            count+=1
+
+
+        esp_df = pd.concat([dfs[0].drop(['timestamp'], axis=1), dfs[1].drop(['timestamp'], axis=1), dfs[2].drop(['timestamp'], axis=1)], axis=1, ignore_index=False)
+        esp_df.dropna(inplace=True)
+        esp_df = esp_df[~((esp_df['esp1'] == -110) & (esp_df['esp2'] == -110) & (esp_df['esp3'] == -110))]
+        
+        
+        esp_df = sc_ips.transform(esp_df)
+
+        predictions = []
+        for clf in clfs:
+            name = type(clf).__name__
+            if(name=='SVC'):
+                name = name + '_' + clf.get_params()['kernel']
+            predictions.append([name, clf.predict(esp_df)[0]])
+
+        predictions_df = pd.DataFrame(predictions, columns=['Classifier','Prediction'])
+
+        st.write('# Indoor Positioning System')
+        st.write('## Predictions: ')
+        st.dataframe(predictions_df)
+        st.write('Mode:', predictions_df.mode()['Prediction'][0])
+        st.write('Voting Result:', np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1])
+        
+        
+
+        #db.child("readings").remove()
+        #time.sleep(30)
+        readings = db.child("readings").get()
+        firebase_df = pd.DataFrame.from_dict(dict(readings.val()), orient='index').reset_index(drop=True)
+        firebase_df = firebase_df.drop(columns=['locationTimestamp_since1970', 'locationLatitude', 'locationLongitude', 'locationAltitude', 'locationSpeed', 'locationSpeedAccuracy', 'locationCourse', 'locationCourseAccuracy', 'locationVerticalAccuracy', 'locationHorizontalAccuracy', 'locationFloor', 'accelerometerTimestamp_sinceReboot', 'motionTimestamp_sinceReboot', 'motionAttitudeReferenceFrame', 'motionMagneticFieldX', 'motionMagneticFieldY', 'motionMagneticFieldZ', 'motionHeading', 'motionMagneticFieldCalibrationAccuracy', 'activityTimestamp_sinceReboot', 'activity', 'activityActivityConfidence', 'activityActivityStartDate', 'pedometerStartDate', 'pedometerAverageActivePace', 'pedometerEndDate', 'altimeterTimestamp_sinceReboot', 'altimeterReset', 'altimeterRelativeAltitude', 'altimeterPressure', 'batteryState', 'batteryLevel'])
+        firebase_df = firebase_df.drop(columns=['label'], axis=1, errors='ignore')
+        firebase_df = firebase_df.dropna()
+        firebase_df['timestamp'] =  pd.to_datetime(firebase_df['loggingTime'])
+        firebase_df = firebase_df.drop(columns=['loggingTime'])
+        cols = firebase_df.columns.difference(['timestamp'])
+        firebase_df[cols] = firebase_df[cols].astype(float)
+        firebase_df = firebase_df.sort_values(by='timestamp', ascending=True)
+
+        segments = []
+
+        for i in range(0,  firebase_df.shape[0]- n_time_steps, step):  
+            accelerometerAccelerationX = firebase_df['accelerometerAccelerationX'].values[i: i + n_time_steps]
+            accelerometerAccelerationY = firebase_df['accelerometerAccelerationY'].values[i: i + n_time_steps]
+            accelerometerAccelerationZ = firebase_df['accelerometerAccelerationZ'].values[i: i + n_time_steps]
+            motionYaw = firebase_df['motionYaw'].values[i: i + n_time_steps]
+            motionRoll = firebase_df['motionRoll'].values[i: i + n_time_steps]
+            motionPitch = firebase_df['motionPitch'].values[i: i + n_time_steps]
+            motionRotationRateX = firebase_df['motionRotationRateX'].values[i: i + n_time_steps]
+            motionRotationRateY = firebase_df['motionRotationRateY'].values[i: i + n_time_steps]
+            motionRotationRateZ = firebase_df['motionRotationRateZ'].values[i: i + n_time_steps]
+            motionUserAccelerationX = firebase_df['motionUserAccelerationX'].values[i: i + n_time_steps]
+            motionUserAccelerationY = firebase_df['motionUserAccelerationY'].values[i: i + n_time_steps]
+            motionUserAccelerationZ = firebase_df['motionUserAccelerationZ'].values[i: i + n_time_steps]
+            motionQuaternionX = firebase_df['motionQuaternionX'].values[i: i + n_time_steps]
+            motionQuaternionY = firebase_df['motionQuaternionY'].values[i: i + n_time_steps]
+            motionQuaternionZ = firebase_df['motionQuaternionZ'].values[i: i + n_time_steps]
+            motionQuaternionW = firebase_df['motionQuaternionW'].values[i: i + n_time_steps]
+            motionGravityX = firebase_df['motionGravityX'].values[i: i + n_time_steps]
+            motionGravityY = firebase_df['motionGravityY'].values[i: i + n_time_steps]
+            motionGravityZ = firebase_df['motionGravityZ'].values[i: i + n_time_steps]
+            #pedometerNumberOfSteps = firebase_df['pedometerNumberOfSteps'].values[i: i + n_time_steps]
+            #pedometerCurrentPace = firebase_df['pedometerCurrentPace'].values[i: i + n_time_steps]
+            #pedometerCurrentCadence = firebase_df['pedometerCurrentCadence'].values[i: i + n_time_steps]
+            #pedometerDistance = firebase_df['pedometerDistance'].values[i: i + n_time_steps]
+            #pedometerFloorsAscended = firebase_df['pedometerFloorsAscended'].values[i: i + n_time_steps]
+            #pedometerFloorsDescended = firebase_df['pedometerFloorsDescended'].values[i: i + n_time_steps]
+
+            #segments.append([accelerometerAccelerationX, accelerometerAccelerationY, accelerometerAccelerationZ, motionYaw, motionRoll, motionPitch, motionRotationRateX, motionRotationRateY, motionRotationRateZ, motionUserAccelerationX, motionUserAccelerationY, motionUserAccelerationZ, motionQuaternionX, motionQuaternionY, motionQuaternionZ, motionQuaternionW, motionGravityX, motionGravityY, motionGravityZ, pedometerNumberOfSteps, pedometerCurrentPace, pedometerCurrentCadence, pedometerDistance, pedometerFloorsAscended, pedometerFloorsDescended])
+
+
+            segments.append([accelerometerAccelerationX, accelerometerAccelerationY, accelerometerAccelerationZ, motionYaw, motionRoll, motionPitch, motionRotationRateX, motionRotationRateY, motionRotationRateZ, motionUserAccelerationX, motionUserAccelerationY, motionUserAccelerationZ, motionQuaternionX, motionQuaternionY, motionQuaternionZ, motionQuaternionW, motionGravityX, motionGravityY, motionGravityZ])
+
+        
+        reshaped_segments = np.asarray(segments, dtype= np.float32).reshape(-1, n_time_steps, n_features)
+        reshaped_segments = sc_har.transform(reshaped_segments.reshape(-1, reshaped_segments.shape[-1])).reshape(reshaped_segments.shape)
+        # loaded_lstm.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        # loaded_cnn.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        # loaded_ann.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+        lstm_prediction = loaded_lstm.predict(reshaped_segments)
+        cnn_prediction = loaded_cnn.predict(reshaped_segments)
+        ann_reshaped_segments = np.asarray(segments, dtype= np.float32).reshape(-1, n_time_steps * n_features)
+        ann_prediction = loaded_ann.predict(ann_reshaped_segments)
+
+        lstm_activity = activities[stats.mode(np.argmax(lstm_prediction, axis=1))[0][0]]
+        cnn_activity = activities[stats.mode(np.argmax(cnn_prediction, axis=1))[0][0]]
+        ann_activity = activities[stats.mode(np.argmax(ann_prediction, axis=1))[0][0]]
+        
+        st.write('# Human Activity Recognition')
+        st.write('## Predictions: ')
+        st.write("LSTM Prediction: ", lstm_activity)
+        st.write("CNN Prediction: ", cnn_activity)
+        st.write("ANN Prediction: ", ann_activity)
+        st.write("Final Prediction: ", stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0])
+        time.sleep(30)

@@ -1,0 +1,10 @@
+credentials:
+  usernames:
+    jsmith:
+      email: jsmith@gmail.com
+      name: John Smith
+      password: $2b$12$lBDVWLrrA7wTMR1fdPt8iuJJsTWV.e8lOxue9q.gFT35xePSGAyxO
+cookie:
+  expiry_days: 30
+  key: gradproject
+  name: nuharips
