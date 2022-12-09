@@ -342,8 +342,8 @@ while True:
 
         try:
             refresh_HAR = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-            db.child("readings").remove()
-            time.sleep(30)            
+            #db.child("readings").remove()
+            time.sleep(5)            
             lstm_activity, cnn_activity, ann_activity = run_HAR()
             
             st.write('## Predictions: ')
@@ -373,15 +373,15 @@ while True:
                 if gmail_send_message()['labelIds'] == ['SENT']:
                     st.error('Supervisor is notified!')                
             
-            if len(prev_har) == 5 and len(prev_ips) == 5:
-                ips_counter = collections.Counter(prev_ips)
-                ips_counter = list(ips_counter.most_common(1)[0])
-                har_counter = collections.Counter(prev_har)
-                har_counter = list(har_counter.most_common(1)[0])
-                if ips_counter[1] >= 4 and har_counter[1] >= 4:
-                    st.write(ips_counter[0], har_counter[0])
-                    prev_har = []
-                    prev_ips = []
+        if len(prev_har) == 5 and len(prev_ips) == 5:
+            ips_counter = collections.Counter(prev_ips)
+            ips_counter = list(ips_counter.most_common(1)[0])
+            har_counter = collections.Counter(prev_har)
+            har_counter = list(har_counter.most_common(1)[0])
+            if ips_counter[1] >= 4 and har_counter[1] >= 4:
+                st.write(ips_counter[0], har_counter[0])
+                prev_har = []
+                prev_ips = []
         
         
         hide_table_row_index = """
