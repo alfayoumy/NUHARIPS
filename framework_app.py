@@ -383,6 +383,7 @@ while True:
             if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
                 st.write(ips_counter[0], har_counter[0])
                 event = "User has been " + har_counter[0] + " in " + ips_counter[0] + " for 1 hour."
+                event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 record_event(event_ts, ips_pred, har_pred, event)
                 st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
