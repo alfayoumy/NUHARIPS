@@ -186,7 +186,7 @@ def record_event(event_ts, ips_pred, har_pred, event):
 def get_events():
     events = db.child("events").get()
     events_df = pd.DataFrame.from_dict(dict(events.val()), orient='index').reset_index(drop=True)
-    events_df['Event Timestamp'] =  pd.to_datetime(events_df['Event Timestamp'])
+    events_df['Event Timestamp'] =  pd.to_datetime(events_df['Event Timestamp'], format="%d/%m/%Y %H:%M:%S")
     events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
     events_df = events_df.sort_values('Event Timestamp', ascending=False)
     return events_df
@@ -356,7 +356,7 @@ while True:
             st.warning('HAR System is Offline!', icon="⚠️")
     
     placeholder3.empty()
-    sleep(0.01)
+    time.sleep(0.01)
     with placeholder3.container():
         st.write('# Events Record')
         if(ips_bool and har_bool):
