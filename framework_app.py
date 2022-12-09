@@ -354,10 +354,8 @@ while True:
             st.warning('HAR System is Offline!', icon="⚠️")
        
     with placeholder3.container():
+        placeholder3.empty()
         st.write('# Events Record')
-        error1 = st.empty()
-        error2 = st.empty()
-        st_df = st.empty()
         if(ips_bool and har_bool):
             if har_pred == 'Laying Down' and ips_pred == 'room_3':
                 event = "User is laying down in the bathroom"
