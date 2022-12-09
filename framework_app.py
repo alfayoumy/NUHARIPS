@@ -355,6 +355,8 @@ while True:
        
     with placeholder3.container():
         st.write('# Events Record')
+        error1 = st.empty()
+        error2 = st.empty()
         if(ips_bool and har_bool):
             if har_pred == 'Laying Down' and ips_pred == 'room_3':
                 event = "User is laying down in the bathroom"
