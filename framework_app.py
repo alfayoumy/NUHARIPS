@@ -300,6 +300,8 @@ refresh_IPS = '...'
 refresh_HAR = '...'
 prev_har = []
 prev_ips = []
+EVENTS_RECORDED = 10
+THRESHOLD = 9
 
 while True:
     ips_bool = False
@@ -373,15 +375,21 @@ while True:
                 if gmail_send_message()['labelIds'] == ['SENT']:
                     st.error('Supervisor is notified!')                
             
-        if len(prev_har) == 5 and len(prev_ips) == 5:
+        if len(prev_har) == EVENTS_RECORDED and len(prev_ips) == EVENTS_RECORDED:
             ips_counter = collections.Counter(prev_ips)
             ips_counter = list(ips_counter.most_common(1)[0])
             har_counter = collections.Counter(prev_har)
             har_counter = list(har_counter.most_common(1)[0])
-            if ips_counter[1] >= 4 and har_counter[1] >= 4:
+            if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
                 st.write(ips_counter[0], har_counter[0])
+                event = "User has been " + har_counter[0] + " in " + ips_counter[0] + " for 1 hour."
+                record_event(event_ts, ips_pred, har_pred, event)
+                st.error('Alarming activity detected!')
+                if gmail_send_message()['labelIds'] == ['SENT']:
+                    st.error('Supervisor is notified!')  
                 prev_har = []
                 prev_ips = []
+                
         
         
         hide_table_row_index = """
