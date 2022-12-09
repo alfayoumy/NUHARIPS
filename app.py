@@ -242,7 +242,7 @@ def gmail_send_message():
 
         message.set_content('Alarming activity is detected. Please check the dashboard for more information: https://nuharips.streamlit.app/')
 
-        message['To'] = '3mr2303@gmail.com'
+        message['To'] = st.secrets['email']
         message['From'] = 'nuharips@gmail.com'
         message['Subject'] = 'Warning: Alarming Activity Detected'
 
@@ -380,7 +380,6 @@ while True:
             har_counter = collections.Counter(prev_har)
             har_counter = list(har_counter.most_common(1)[0])
             if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
-                st.write(ips_counter[0], har_counter[0])
                 event = "User has been " + har_counter[0] + " in " + ips_counter[0] + " for 1 hour."
                 event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 record_event(event_ts, ips_pred, har_pred, event)
