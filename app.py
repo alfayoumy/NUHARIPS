@@ -22,9 +22,11 @@ from email.message import EmailMessage
 import json
 import os
 import collections
+from httpx_oauth.clients.google import GoogleOAuth2
 
 from contextlib import contextmanager, redirect_stdout
 from io import StringIO
+import asyncio
 
 def connect_firebase():
     firebaseConfig={  "apiKey": st.secrets["apiKey"],
@@ -191,50 +193,38 @@ def get_events():
     events_df = events_df.sort_values('Event Timestamp', ascending=False)
     events_df['Event Timestamp'] =  events_df['Event Timestamp'].dt.strftime("%d/%m/%Y %H:%M:%S")
     events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
-    return events_df
+    return events_df.head(20)
 
-"""
-@contextmanager
-def st_capture(output_func):
-    with StringIO() as stdout, redirect_stdout(stdout):
-        old_write = stdout.write
-
-        def new_write(string):
-            ret = old_write(string)
-            output_func(stdout.getvalue())
-            return ret
-        
-        stdout.write = new_write
-        yield
-"""
 
 def gmail_send_message():
     """Create and send an email message
     Print the returned  message id
     Returns: Message object, including message id
     """
+    # If modifying these scopes, delete the file token.json.
+    SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+    
     creds = None
-    secrets_file = {"token": st.secrets['token'], "refresh_token": st.secrets['refresh_token'], "token_uri": st.secrets['token_uri'], "client_id": st.secrets['client_id'], "client_secret": st.secrets['client_secret'], "scopes": st.secrets['scopes'], "expiry": st.secrets['expiry']}
-    secrets_file = json.dumps(secrets_file)
-    with open("token.json", "w") as outfile:
-        outfile.write(secrets_file)
-        
+    send_message = None
+    
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
+    if not creds or not creds.valid or creds.expired:
+        try:
             creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+            # Save the credentials for the next run
+            with open('token.json', 'w') as token:
+                token.write(creds.to_json())
+        except:
+            st.write("1")
+            exec(open('oauth.py').read())
+    else:
+        st.write("2")
+        exec(open('oauth.py').read())
 
     try:
         service = build('gmail', 'v1', credentials=creds)
@@ -247,16 +237,19 @@ def gmail_send_message():
         message['Subject'] = 'Warning: Alarming Activity Detected'
 
         # encoded message
-        encoded_message = base64.urlsafe_b64encode(message.as_bytes()) \
-            .decode()
+        encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 
         create_message = {
             'raw': encoded_message
         }
         # pylint: disable=E1101
-        send_message = (service.users().messages().send
-                        (userId="me", body=create_message).execute())
-        print(F'Message Id: {send_message["id"]}')
+        try:
+            send_message = (service.users().messages().send
+                            (userId="me", body=create_message).execute())
+            print(F'Message Id: {send_message["id"]}')
+        except:
+            st.write("3")
+            exec(open('oauth.py').read())
     except HttpError as error:
         print(F'An error occurred: {error}')
         send_message = None
@@ -264,10 +257,6 @@ def gmail_send_message():
  
 
 ################################################################################################
-
-# If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-
 
 n_time_steps = 200
 n_features = 19
@@ -300,9 +289,10 @@ refresh_IPS = '...'
 refresh_HAR = '...'
 prev_har = []
 prev_ips = []
+
 EVENTS_RECORDED = 10    #will be 120 for 1 hour
 THRESHOLD = 9           #will be 105
-SLEEP = 5               #will be 30
+SLEEP = 2               #will be 30
 
 while True:
     ips_bool = False
@@ -311,7 +301,7 @@ while True:
     #db.child("esp2").remove()
     #db.child("esp3").remove()
     #db.child("readings").remove()
-    time.sleep(SLEEP)
+    time.sleep(5)
     
     with placeholder.container():
         st.write('# Indoor Positioning System')
@@ -372,8 +362,11 @@ while True:
                 event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 record_event(event_ts, ips_pred, har_pred, event)
                 st.error('Alarming activity detected!')
-                if gmail_send_message()['labelIds'] == ['SENT']:
-                    st.error('Supervisor is notified!')                
+                try:
+                    if gmail_send_message()['labelIds'] == ['SENT']:
+                        st.error('Supervisor is notified!')
+                except:
+                    st.error('Failed to send email notification!')
             
         if len(prev_har) == EVENTS_RECORDED and len(prev_ips) == EVENTS_RECORDED:
             ips_counter = collections.Counter(prev_ips)
@@ -381,7 +374,7 @@ while True:
             har_counter = collections.Counter(prev_har)
             har_counter = list(har_counter.most_common(1)[0])
             if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
-                event = "User has been " + har_counter[0] + " in " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
+                event = "User has been " + har_counter[0] + " in " + ips_counter[0] + " for 1 hour."
                 event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 record_event(event_ts, ips_pred, har_pred, event)
                 st.error('Alarming activity detected!')
