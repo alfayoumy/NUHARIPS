@@ -302,7 +302,7 @@ prev_har = []
 prev_ips = []
 EVENTS_RECORDED = 10    #will be 120 for 1 hour
 THRESHOLD = 9           #will be 105
-SLEEP = 5               #will be 30
+SLEEP = 1               #will be 30
 
 while True:
     ips_bool = False
