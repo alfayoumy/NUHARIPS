@@ -172,7 +172,7 @@ def run_IPS():
         predictions.append([name, clf.predict(esp_df)[0]])
 
     predictions_df = pd.DataFrame(predictions, columns=['Classifier','Prediction'])
-    predictions_df['Predictions'] = predictions_df['Predictions'].replace(['room_1', 'room_2', 'room_3'], ['Living Room', 'Bedroom', 'Bathroom'])
+    predictions_df['Prediction'] = predictions_df['Prediction'].replace(['room_1', 'room_2', 'room_3'], ['Living Room', 'Bedroom', 'Bathroom'])
 
     return predictions_df
 
