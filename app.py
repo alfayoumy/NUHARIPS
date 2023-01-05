@@ -395,8 +395,8 @@ while True:
                 st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
                     st.error('Supervisor is notified!')  
-                prev_har = []
-                prev_ips = []
+            prev_har = []
+            prev_ips = []
                 
         
         
