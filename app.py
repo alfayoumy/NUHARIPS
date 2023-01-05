@@ -182,13 +182,14 @@ def record_event(event_ts, ips_pred, har_pred, event):
             "Location": ips_pred,
             "Activity": har_pred,
             "Event": event}
-    db.child("events").push(data)
+    db.child("events").child(event_ts).set(data)
 
 
 def get_events():
     events = db.child("events").get()
     events_df = pd.DataFrame.from_dict(dict(events.val()), orient='index').reset_index(drop=True)
     events_df['Event Timestamp'] =  pd.to_datetime(events_df['Event Timestamp'])
+    
     events_df = events_df.sort_values('Event Timestamp', ascending=False)
     events_df['Event Timestamp'] =  events_df['Event Timestamp'].dt.strftime("%d/%m/%Y %H:%M:%S")
     events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
