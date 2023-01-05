@@ -2,7 +2,7 @@ import pyrebase
 import streamlit as st
 import time
 import pytz
-from datetime import datetime
+import datetime
 import os
 import glob
 import pandas as pd
@@ -37,7 +37,14 @@ def connect_firebase():
       "measurementId": st.secrets["measurementId"] }
 
     firebase=pyrebase.initialize_app(firebaseConfig)
-    return firebase.database()
+    
+    db = firebase.database()
+    #remove events older than 7 days ago
+    events = db.child("events").get()
+    for key in dict(events.val()).keys():
+    if datetime.datetime.fromtimestamp(int(key)) < datetime.datetime.now()-datetime.timedelta(seconds=20):
+        db.child("events").child(key).remove()
+    return db
 
 def load_IPS_models():
     models_path = '/app/nuharips/IPS_models/'
@@ -178,23 +185,26 @@ def run_IPS():
 
 
 def record_event(ips_pred, har_pred, event):
-    event_ts = datetime.now(pytz.timezone("Africa/Cairo"))
+    event_ts = datetime.datetime.now(pytz.timezone("Africa/Cairo"))
     data = {"Event Timestamp": event_ts.strftime("%d/%m/%Y %H:%M:%S"),
             "Location": ips_pred,
             "Activity": har_pred,
             "Event": event}
-    db.child("events").child(int(datetime.timestamp(event_ts))).set(data)
+    db.child("events").child(int(datetime.datetime.timestamp(event_ts))).set(data)
 
 
 def get_events():
-    events = db.child("events").get()
-    events_df = pd.DataFrame.from_dict(dict(events.val()), orient='index').reset_index(drop=True)
-    events_df['Event Timestamp'] =  pd.to_datetime(events_df['Event Timestamp'])
-    
-    events_df = events_df.sort_values('Event Timestamp', ascending=False)
-    events_df['Event Timestamp'] =  events_df['Event Timestamp'].dt.strftime("%d/%m/%Y %H:%M:%S")
-    events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
-    return events_df.head(20)
+    try:
+        events = db.child("events").get()
+        events_df = pd.DataFrame.from_dict(dict(events.val()), orient='index').reset_index(drop=True)
+        events_df['Event Timestamp'] =  pd.to_datetime(events_df['Event Timestamp'])
+        
+        events_df = events_df.sort_values('Event Timestamp', ascending=False)
+        events_df['Event Timestamp'] =  events_df['Event Timestamp'].dt.strftime("%d/%m/%Y %H:%M:%S")
+        events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
+        return events_df.head(20)
+    except:
+        st.warning('No events recorded yet.')
 
 """
 @contextmanager
@@ -321,7 +331,7 @@ while True:
         st.write('Last Refresh:', refresh_IPS)
         
         try:
-            refresh_IPS = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+            refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
 
             predictions_df = run_IPS()
             
@@ -354,7 +364,7 @@ while True:
         st.write('Last Refresh:', refresh_HAR)
 
         try:
-            refresh_HAR = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
          
             lstm_activity, cnn_activity, ann_activity = run_HAR()
             
