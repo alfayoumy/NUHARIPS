@@ -41,9 +41,10 @@ def connect_firebase():
     db = firebase.database()
     #remove events older than 7 days ago
     events = db.child("events").get()
-    for key in dict(events.val()).keys():
-        if datetime.datetime.fromtimestamp(int(key)) < datetime.datetime.now()-datetime.timedelta(seconds=20):
-            db.child("events").child(key).remove()
+    if events.val() != None:
+        for key in dict(events.val()).keys():
+            if datetime.datetime.fromtimestamp(int(key)) < datetime.datetime.now()-datetime.timedelta(seconds=20):
+                db.child("events").child(key).remove()
     return db
 
 def load_IPS_models():
