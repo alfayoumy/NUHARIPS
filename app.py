@@ -43,7 +43,7 @@ def connect_firebase():
     events = db.child("events").get()
     if events.val() != None:
         for key in dict(events.val()).keys():
-            if datetime.datetime.fromtimestamp(int(key)) < datetime.datetime.now()-datetime.timedelta(seconds=20):
+            if datetime.datetime.fromtimestamp(int(key)) < datetime.datetime.now(pytz.timezone("Africa/Cairo"))-datetime.timedelta(days=7):
                 db.child("events").child(key).remove()
     return db
 
