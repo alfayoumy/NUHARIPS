@@ -172,7 +172,8 @@ def run_IPS():
         predictions.append([name, clf.predict(esp_df)[0]])
 
     predictions_df = pd.DataFrame(predictions, columns=['Classifier','Prediction'])
-    
+    predictions_df['Predictions'] = predictions_df['Predictions'].replace(['room_1', 'room_2', 'room_3'], ['Living Room', 'Bedroom', 'Bathroom'])
+
     return predictions_df
 
 
@@ -326,12 +327,19 @@ while True:
             st.dataframe(predictions_df)
             st.write('Mode:', predictions_df.mode()['Prediction'][0])
             ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
+            
             st.write('### Final Prediction:', ips_pred)
             prev_ips.append(ips_pred)
             
             ips_bool = True
             
-            if ips_pred == 'room_3':
+            if ips_pred == 'Living Room':
+                image = Image.open('/app/nuharips/resources/rooms/r1.png')
+                st.image(image)
+            if ips_pred == 'Bedroom':
+                image = Image.open('/app/nuharips/resources/rooms/r2.png')
+                st.image(image)
+            if ips_pred == 'Bathroom':
                 image = Image.open('/app/nuharips/resources/rooms/r3.png')
                 st.image(image)
             
@@ -367,7 +375,7 @@ while True:
     with placeholder3.container():
         st.write('# Events Record')
         if(ips_bool and har_bool):
-            if har_pred == 'Laying Down' and ips_pred == 'room_3':
+            if har_pred == 'Laying Down' and ips_pred == 'Bathroom':
                 event = "User is laying down in the bathroom"
                 event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 record_event(event_ts, ips_pred, har_pred, event)
