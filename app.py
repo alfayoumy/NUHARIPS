@@ -182,7 +182,7 @@ def record_event(event_ts, ips_pred, har_pred, event):
             "Location": ips_pred,
             "Activity": har_pred,
             "Event": event}
-    db.child("events").child(event_ts).set(data)
+    db.child("events").child(str(event_ts)).set(data)
 
 
 def get_events():
