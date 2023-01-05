@@ -178,7 +178,7 @@ def run_IPS():
 
 
 def record_event(event_ts, ips_pred, har_pred, event):
-    data = {"Event Timestamp": event_ts,
+    data = {"Event Timestamp": event_ts.strftime("%d/%m/%Y %H:%M:%S"),
             "Location": ips_pred,
             "Activity": har_pred,
             "Event": event}
@@ -378,7 +378,7 @@ while True:
         if(ips_bool and har_bool):
             if har_pred == 'Laying Down' and ips_pred == 'Bathroom':
                 event = "User is laying down in the Bathroom"
-                event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+                event_ts = datetime.now(pytz.timezone("Africa/Cairo"))
                 record_event(event_ts, ips_pred, har_pred, event)
                 st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
@@ -391,7 +391,7 @@ while True:
             har_counter = list(har_counter.most_common(1)[0])
             if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
                 event = "User has been " + har_counter[0] + " in the " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
-                event_ts = datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+                event_ts = datetime.now(pytz.timezone("Africa/Cairo"))
                 record_event(event_ts, ips_pred, har_pred, event)
                 st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
