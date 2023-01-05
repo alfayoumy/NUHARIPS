@@ -191,7 +191,7 @@ def get_events():
     events_df = events_df.sort_values('Event Timestamp', ascending=False)
     events_df['Event Timestamp'] =  events_df['Event Timestamp'].dt.strftime("%d/%m/%Y %H:%M:%S")
     events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
-    return events_df
+    return events_df.head(20)
 
 """
 @contextmanager
