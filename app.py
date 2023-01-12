@@ -290,21 +290,21 @@ n_epochs = 100
 
 activities = ['Downstairs', 'Laying Down', 'Sitting', 'Upstairs', 'Walking']
 
-try:
-    db = connect_firebase()
-    success1 = st.success("Successfully connected to the database.", icon = "✅")
+#try:
+db = connect_firebase()
+success1 = st.success("Successfully connected to the database.", icon = "✅")
 
-    clfs = load_IPS_models()
-    sc_ips=joblib.load('/app/nuharips/IPS_models/std_scaler.bin')
-    success2 = st.success("Successfully loaded IPS models.", icon = "✅")
+clfs = load_IPS_models()
+sc_ips=joblib.load('/app/nuharips/IPS_models/std_scaler.bin')
+success2 = st.success("Successfully loaded IPS models.", icon = "✅")
 
-    loaded_lstm = load_HAR_model('lstm')
-    loaded_cnn = load_HAR_model('cnn')
-    loaded_ann = load_HAR_model('ann')
-    sc_har=joblib.load('/app/nuharips/HAR_models/std_scaler5.bin')
-    success3 = st.success("Successfully loaded HAR models.", icon = "✅")
-except:
-    st.warning('Something went wrong. Please try again later.', icon="⚠️")
+loaded_lstm = load_HAR_model('lstm')
+loaded_cnn = load_HAR_model('cnn')
+loaded_ann = load_HAR_model('ann')
+sc_har=joblib.load('/app/nuharips/HAR_models/std_scaler5.bin')
+success3 = st.success("Successfully loaded HAR models.", icon = "✅")
+#except:
+#    st.warning('Something went wrong. Please try again later.', icon="⚠️")
 
 # creating a single-element container.
 placeholder = st.empty()
