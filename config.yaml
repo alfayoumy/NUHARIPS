@@ -1,9 +1,13 @@
 credentials:
   usernames:
-    jsmith:
+    user:
       email: jsmith@gmail.com
       name: John Smith
-      password: $2b$12$lBDVWLrrA7wTMR1fdPt8iuJJsTWV.e8lOxue9q.gFT35xePSGAyxO
+      password: $2b$12$XHqZsLg59L6xrPu34yXdW.gxaJHDowwfjOY7CwkA4jw//znQQfOqC
+    admin:
+      email: asmith@gmail.com
+      name: Adam Smith
+      password: $2b$12$RPpHTilf.sEKTEDRzJK/Ku55tN3Gd1RncslEZOHGizAQYVA.xJnTu
 cookie:
   expiry_days: 30
   key: gradproject
