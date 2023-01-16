@@ -340,10 +340,6 @@ while True:
             refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
 
             predictions_df = run_IPS()
-            
-            st.write('## Predictions: ')
-            st.dataframe(predictions_df)
-            st.write('Mode:', predictions_df.mode()['Prediction'][0])
             ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
             
             st.write('### Final Prediction:', ips_pred)
@@ -373,11 +369,6 @@ while True:
             refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
          
             lstm_activity, cnn_activity, ann_activity = run_HAR()
-            
-            st.write('## Predictions: ')
-            st.write("LSTM Prediction: ", lstm_activity)
-            st.write("CNN Prediction: ", cnn_activity)
-            st.write("ANN Prediction: ", ann_activity)
             
             har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
             st.write("### Final Prediction: ", har_pred)
