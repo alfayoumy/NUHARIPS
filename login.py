@@ -18,7 +18,7 @@ authenticator = stauth.Authenticate(
 name, authentication_status, USERNAME = authenticator.login('Login', 'main')
 
 if authentication_status == True:
-    authenticator.logout('Logout', 'main')
+    authenticator.logout('Logout', 'sidebar')
     st.success('Login successful.', icon = "✅")
     exec(open('app.py').read())
     

@@ -285,19 +285,22 @@ def gmail_send_message():
 
 try:
     db = connect_firebase()
-    success1 = st.success("Successfully connected to the database.", icon = "✅")
+    with st.sidebar:
+        success1 = st.success("Successfully connected to the database.", icon = "✅")
 
     clfs = load_IPS_models()
     sc_ips=joblib.load('/app/nuharips/IPS_models/std_scaler.bin')
-    success2 = st.success("Successfully loaded IPS models.", icon = "✅")
+    with st.sidebar:
+        success2 = st.success("Successfully loaded IPS models.", icon = "✅")
 
     loaded_lstm = load_HAR_model('lstm')
     loaded_cnn = load_HAR_model('cnn')
     loaded_ann = load_HAR_model('ann')
     sc_har=joblib.load('/app/nuharips/HAR_models/std_scaler5.bin')
-    success3 = st.success("Successfully loaded HAR models.", icon = "✅")
+    with st.sidebar:
+        success3 = st.success("Successfully loaded HAR models.", icon = "✅")
 except:
-    st.warning('Something went wrong. Please try again later.', icon="⚠️")
+    st.warning('Something went wrong. Please try again later or contact an administrator.', icon="⚠️")
 
 # creating a single-element container.
 placeholder = st.empty()
