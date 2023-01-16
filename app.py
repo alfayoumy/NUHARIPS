@@ -203,17 +203,14 @@ def record_event(ips_pred, har_pred, event):
 
 
 def get_events():
-    try:
-        events = db.child("events").get()
-        events_df = pd.DataFrame.from_dict(dict(events.val()), orient='index').reset_index(drop=True)
-        events_df['Event Timestamp'] =  pd.to_datetime(events_df['Event Timestamp'])
-        
-        events_df = events_df.sort_values('Event Timestamp', ascending=False)
-        events_df['Event Timestamp'] =  events_df['Event Timestamp'].dt.strftime("%d/%m/%Y %H:%M:%S")
-        events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
-        return events_df.head(20)
-    except:
-        st.warning('No events recorded yet.')
+    events = db.child("events").get()
+    events_df = pd.DataFrame.from_dict(dict(events.val()), orient='index').reset_index(drop=True)
+    events_df['Event Timestamp'] =  pd.to_datetime(events_df['Event Timestamp'])
+    
+    events_df = events_df.sort_values('Event Timestamp', ascending=False)
+    events_df['Event Timestamp'] =  events_df['Event Timestamp'].dt.strftime("%d/%m/%Y %H:%M:%S")
+    events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
+    return events_df.head(20)
 
 """
 @contextmanager
@@ -419,3 +416,5 @@ while True:
             # Inject CSS with Markdown
             st.markdown(hide_table_row_index, unsafe_allow_html=True)
             st.table(events_df)
+        else:
+            st.warning('No events recorded yet.')
