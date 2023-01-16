@@ -20,7 +20,7 @@ if authentication_status == True:
     st.success('Login successful.', icon = "✅")
     import app
     app.USERNAME = username
-    app()
+    app.main()
     
 elif authentication_status == False:
     st.error('Username/password is incorrect')
