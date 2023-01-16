@@ -21,7 +21,7 @@ if authentication_status == True:
     st.success('Login successful.', icon = "✅")
     if username == "admin":
         app.USERNAME = username
-        app()
+        exec(open('app.py').read())
 elif authentication_status == False:
     st.error('Username/password is incorrect')
 elif authentication_status == None:
