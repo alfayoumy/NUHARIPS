@@ -2,6 +2,7 @@ import streamlit as st
 import streamlit_authenticator as stauth
 import yaml
 import os
+import app
 
 with open('/app/nuharips/config.yaml') as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
@@ -19,9 +20,8 @@ if authentication_status == True:
     authenticator.logout('Logout', 'main')
     st.success('Login successful.', icon = "✅")
     if username == "admin":
-        exec(open('dev-app.py').read())
-    else:
-        exec(open('app.py').read())
+        app.USERNAME = username
+        app()
 elif authentication_status == False:
     st.error('Username/password is incorrect')
 elif authentication_status == None:

@@ -414,9 +414,6 @@ while True:
             prev_har = []
             prev_ips = []
                 
-        
-        
-
 
         # Display a static table
         events_df = get_events()

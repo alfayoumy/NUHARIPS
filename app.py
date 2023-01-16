@@ -32,6 +32,8 @@ import os
 #from contextlib import contextmanager, redirect_stdout
 #from io import StringIO
 
+global USERNAME
+
 def connect_firebase():
     firebaseConfig={  "apiKey": st.secrets["apiKey"],
       "authDomain": st.secrets["authDomain"],
@@ -405,9 +407,6 @@ while True:
             prev_har = []
             prev_ips = []
                 
-        
-        
-
 
         # Display a static table
         events_df = get_events()
