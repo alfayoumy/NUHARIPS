@@ -388,9 +388,11 @@ while True:
             if har_pred == 'Laying Down' and ips_pred == 'Bathroom':
                 event = "User is laying down in the Bathroom"
                 record_event(ips_pred, har_pred, event)
-                st.error('Alarming activity detected!')
+                with st.sidebar:
+                    st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
-                    st.error('Supervisor is notified!')                
+                    with st.sidebar:
+                        st.error('Supervisor is notified!')                
             
         if len(prev_har) == EVENTS_RECORDED and len(prev_ips) == EVENTS_RECORDED:
             ips_counter = collections.Counter(prev_ips)
@@ -400,9 +402,11 @@ while True:
             if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
                 event = "User has been " + har_counter[0] + " in the " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
                 record_event(ips_pred, har_pred, event)
-                st.error('Alarming activity detected!')
+                with st.sidebar:
+                    st.error('Alarming activity detected!')
                 if gmail_send_message()['labelIds'] == ['SENT']:
-                    st.error('Supervisor is notified!')  
+                    with st.sidebar:
+                        st.error('Supervisor is notified!')  
             prev_har = []
             prev_ips = []
                 
