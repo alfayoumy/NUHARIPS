@@ -42,8 +42,8 @@ except:
 placeholder = st.empty()
 placeholder2 = st.empty()
 placeholder3 = st.empty()
-refresh_IPS = '...'
-refresh_HAR = '...'
+refresh_IPS = 'Refreshing...'
+refresh_HAR = 'Refreshing...'
 prev_har = []
 prev_ips = []
 EVENTS_RECORDED = 10    #will be 120 for 1 hour
@@ -154,4 +154,6 @@ while True:
         st.markdown(hide_table_row_index, unsafe_allow_html=True)
 
         # Display a static table
-        st.table(get_events())
+        events_df = get_events()
+        if !(events_df.empty):
+            st.table(events_df)
