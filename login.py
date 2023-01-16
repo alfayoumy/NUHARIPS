@@ -19,7 +19,8 @@ name, authentication_status, USERNAME = authenticator.login('Login', 'main')
 
 if authentication_status == True:
     authenticator.logout('Logout', 'sidebar')
-    st.success('Login successful.', icon = "✅")
+    with st.sidebar:
+        st.success('Login successful.', icon = "✅")
     exec(open('app.py').read())
     
 elif authentication_status == False:
