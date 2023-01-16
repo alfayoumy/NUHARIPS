@@ -3,6 +3,8 @@ import streamlit_authenticator as stauth
 import yaml
 import os
 
+global USERNAME
+
 with open('/app/nuharips/config.yaml') as file:
     config = yaml.load(file, Loader=yaml.SafeLoader)
 
@@ -13,13 +15,11 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-name, authentication_status, username = authenticator.login('Login', 'main')
+name, authentication_status, USERNAME = authenticator.login('Login', 'main')
 
 if authentication_status == True:
     authenticator.logout('Logout', 'main')
     st.success('Login successful.', icon = "✅")
-    import app
-    app.USERNAME = username
     exec(open('app.py').read())
     
 elif authentication_status == False:

@@ -26,7 +26,6 @@ import os
 #from contextlib import contextmanager, redirect_stdout
 #from io import StringIO
 
-global USERNAME
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 n_time_steps = 200
