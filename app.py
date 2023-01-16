@@ -147,7 +147,7 @@ while True:
 
         # Display a static table
         events_df = get_events()
-        if not(events_df.empty):
+        if events_df is not None:
             hide_table_row_index = """
                 <style>
                 thead tr th:first-child {display:none}
