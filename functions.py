@@ -44,6 +44,8 @@ def connect_firebase():
                 db.child("events").child(key).remove()
     return db
 
+db = connect_firebase()
+
 def load_IPS_models():
     models_path = '/app/nuharips/IPS_models/'
     all_models = glob.glob(os.path.join(models_path , "*.pkl"))

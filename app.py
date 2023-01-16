@@ -22,18 +22,21 @@ n_epochs = 100
 
 activities = ['Downstairs', 'Laying Down', 'Sitting', 'Upstairs', 'Walking']
 
-db = connect_firebase()
-success1 = st.success("Successfully connected to the database.", icon = "✅")
+try:
+    db = connect_firebase()
+    success1 = st.success("Successfully connected to the database.", icon = "✅")
 
-clfs = load_IPS_models()
-sc_ips=joblib.load('/app/nuharips/IPS_models/std_scaler.bin')
-success2 = st.success("Successfully loaded IPS models.", icon = "✅")
+    clfs = load_IPS_models()
+    sc_ips=joblib.load('/app/nuharips/IPS_models/std_scaler.bin')
+    success2 = st.success("Successfully loaded IPS models.", icon = "✅")
 
-loaded_lstm = load_HAR_model('lstm')
-loaded_cnn = load_HAR_model('cnn')
-loaded_ann = load_HAR_model('ann')
-sc_har=joblib.load('/app/nuharips/HAR_models/std_scaler5.bin')
-success3 = st.success("Successfully loaded HAR models.", icon = "✅")
+    loaded_lstm = load_HAR_model('lstm')
+    loaded_cnn = load_HAR_model('cnn')
+    loaded_ann = load_HAR_model('ann')
+    sc_har=joblib.load('/app/nuharips/HAR_models/std_scaler5.bin')
+    success3 = st.success("Successfully loaded HAR models.", icon = "✅")
+except:
+    st.warning('Something went wrong. Please try again later.', icon="⚠️")
 
 # creating a single-element container.
 placeholder = st.empty()
@@ -60,52 +63,57 @@ while True:
         st.write('# Indoor Positioning System')
         st.write('Last Refresh:', refresh_IPS)
         
-        refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+        try:
+            refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
 
-        predictions_df = run_IPS()
-        
-        st.write('## Predictions: ')
-        st.dataframe(predictions_df)
-        st.write('Mode:', predictions_df.mode()['Prediction'][0])
-        ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
-        
-        st.write('### Final Prediction:', ips_pred)
-        prev_ips.append(ips_pred)
-        
-        ips_bool = True
-        
-        if ips_pred == 'Living Room':
-            image = Image.open('/app/nuharips/resources/rooms/r1.png')
-            st.image(image)
-        if ips_pred == 'Bedroom':
-            image = Image.open('/app/nuharips/resources/rooms/r2.png')
-            st.image(image)
-        if ips_pred == 'Bathroom':
-            image = Image.open('/app/nuharips/resources/rooms/r3.png')
-            st.image(image)
-        
+            predictions_df = run_IPS()
+            
+            st.write('## Predictions: ')
+            st.dataframe(predictions_df)
+            st.write('Mode:', predictions_df.mode()['Prediction'][0])
+            ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
+            
+            st.write('### Final Prediction:', ips_pred)
+            prev_ips.append(ips_pred)
+            
+            ips_bool = True
+            
+            if ips_pred == 'Living Room':
+                image = Image.open('/app/nuharips/resources/rooms/r1.png')
+                st.image(image)
+            if ips_pred == 'Bedroom':
+                image = Image.open('/app/nuharips/resources/rooms/r2.png')
+                st.image(image)
+            if ips_pred == 'Bathroom':
+                image = Image.open('/app/nuharips/resources/rooms/r3.png')
+                st.image(image)
+            
+        except:
+            st.warning('IPS System is Offline!', icon="⚠️")
             
 
     with placeholder2.container():
         st.write('# Human Activity Recognition')
         st.write('Last Refresh:', refresh_HAR)
 
-        refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-     
-        lstm_activity, cnn_activity, ann_activity = run_HAR()
-        
-        st.write('## Predictions: ')
-        st.write("LSTM Prediction: ", lstm_activity)
-        st.write("CNN Prediction: ", cnn_activity)
-        st.write("ANN Prediction: ", ann_activity)
-        
-        har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
-        st.write("### Final Prediction: ", har_pred)
-        prev_har.append(har_pred)
-        
-        har_bool = True
+        try:
+            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+         
+            lstm_activity, cnn_activity, ann_activity = run_HAR()
             
-
+            st.write('## Predictions: ')
+            st.write("LSTM Prediction: ", lstm_activity)
+            st.write("CNN Prediction: ", cnn_activity)
+            st.write("ANN Prediction: ", ann_activity)
+            
+            har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
+            st.write("### Final Prediction: ", har_pred)
+            prev_har.append(har_pred)
+            
+            har_bool = True
+            
+        except:
+            st.warning('HAR System is Offline!', icon="⚠️")
     
     placeholder3.empty()
     time.sleep(0.01)
