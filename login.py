@@ -21,7 +21,7 @@ if authentication_status == True:
     if username == "admin":
         import app
         app.USERNAME = username
-        app()
+        app.main()
 elif authentication_status == False:
     st.error('Username/password is incorrect')
 elif authentication_status == None:
