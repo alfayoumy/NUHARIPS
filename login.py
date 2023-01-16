@@ -18,10 +18,10 @@ name, authentication_status, username = authenticator.login('Login', 'main')
 if authentication_status == True:
     authenticator.logout('Logout', 'main')
     st.success('Login successful.', icon = "✅")
-    if username == "admin":
-        import app
-        app.USERNAME = username
-        app.main()
+    import app
+    app.USERNAME = username
+    app.main()
+    
 elif authentication_status == False:
     st.error('Username/password is incorrect')
 elif authentication_status == None:
