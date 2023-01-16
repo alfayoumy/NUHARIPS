@@ -63,57 +63,52 @@ while True:
         st.write('# Indoor Positioning System')
         st.write('Last Refresh:', refresh_IPS)
         
-        try:
-            refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+        refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
 
-            predictions_df = run_IPS()
-            
-            st.write('## Predictions: ')
-            st.dataframe(predictions_df)
-            st.write('Mode:', predictions_df.mode()['Prediction'][0])
-            ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
-            
-            st.write('### Final Prediction:', ips_pred)
-            prev_ips.append(ips_pred)
-            
-            ips_bool = True
-            
-            if ips_pred == 'Living Room':
-                image = Image.open('/app/nuharips/resources/rooms/r1.png')
-                st.image(image)
-            if ips_pred == 'Bedroom':
-                image = Image.open('/app/nuharips/resources/rooms/r2.png')
-                st.image(image)
-            if ips_pred == 'Bathroom':
-                image = Image.open('/app/nuharips/resources/rooms/r3.png')
-                st.image(image)
-            
-        except:
-            st.warning('IPS System is Offline!', icon="⚠️")
+        predictions_df = run_IPS()
+        
+        st.write('## Predictions: ')
+        st.dataframe(predictions_df)
+        st.write('Mode:', predictions_df.mode()['Prediction'][0])
+        ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
+        
+        st.write('### Final Prediction:', ips_pred)
+        prev_ips.append(ips_pred)
+        
+        ips_bool = True
+        
+        if ips_pred == 'Living Room':
+            image = Image.open('/app/nuharips/resources/rooms/r1.png')
+            st.image(image)
+        if ips_pred == 'Bedroom':
+            image = Image.open('/app/nuharips/resources/rooms/r2.png')
+            st.image(image)
+        if ips_pred == 'Bathroom':
+            image = Image.open('/app/nuharips/resources/rooms/r3.png')
+            st.image(image)
+        
             
 
     with placeholder2.container():
         st.write('# Human Activity Recognition')
         st.write('Last Refresh:', refresh_HAR)
 
-        try:
-            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-         
-            lstm_activity, cnn_activity, ann_activity = run_HAR()
+        refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+     
+        lstm_activity, cnn_activity, ann_activity = run_HAR()
+        
+        st.write('## Predictions: ')
+        st.write("LSTM Prediction: ", lstm_activity)
+        st.write("CNN Prediction: ", cnn_activity)
+        st.write("ANN Prediction: ", ann_activity)
+        
+        har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
+        st.write("### Final Prediction: ", har_pred)
+        prev_har.append(har_pred)
+        
+        har_bool = True
             
-            st.write('## Predictions: ')
-            st.write("LSTM Prediction: ", lstm_activity)
-            st.write("CNN Prediction: ", cnn_activity)
-            st.write("ANN Prediction: ", ann_activity)
-            
-            har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
-            st.write("### Final Prediction: ", har_pred)
-            prev_har.append(har_pred)
-            
-            har_bool = True
-            
-        except:
-            st.warning('HAR System is Offline!', icon="⚠️")
+
     
     placeholder3.empty()
     time.sleep(0.01)
