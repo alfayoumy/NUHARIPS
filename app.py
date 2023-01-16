@@ -147,14 +147,13 @@ while True:
 
         # Display a static table
         events_df = get_events()
-        if !(events_df.empty):
+        if not(events_df.empty):
             hide_table_row_index = """
                 <style>
                 thead tr th:first-child {display:none}
                 tbody th {display:none}
                 </style>
                 """
-
             # Inject CSS with Markdown
             st.markdown(hide_table_row_index, unsafe_allow_html=True)
             st.table(events_df)
