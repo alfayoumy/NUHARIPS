@@ -35,6 +35,12 @@ import os
 global USERNAME
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+n_time_steps = 200
+n_features = 19
+step = 40
+n_epochs = 100
+
+activities = ['Downstairs', 'Laying Down', 'Sitting', 'Upstairs', 'Walking']
 
 def connect_firebase():
     firebaseConfig={  "apiKey": st.secrets["apiKey"],
@@ -288,15 +294,7 @@ def gmail_send_message():
  
 ################################################################################################
 
-if __name__ == '__main__':
-
-    n_time_steps = 200
-    n_features = 19
-    step = 40
-    n_epochs = 100
-
-    activities = ['Downstairs', 'Laying Down', 'Sitting', 'Upstairs', 'Walking']
-
+def main():
     try:
         db = connect_firebase()
         success1 = st.success("Successfully connected to the database.", icon = "✅")
@@ -323,7 +321,7 @@ if __name__ == '__main__':
     prev_ips = []
     EVENTS_RECORDED = 10    #will be 120 for 1 hour
     THRESHOLD = 9           #will be 105
-    SLEEP = 1               #will be 30
+    SLEEP = 10               #will be 30
 
     while True:
         ips_bool = False
