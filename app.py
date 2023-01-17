@@ -331,7 +331,7 @@ while True:
             refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
 
             predictions_df = run_IPS()
-            if USERNAME == "admin":
+            if st.session_state["username"] == "admin":
                 st.write('## Predictions: ')
                 st.dataframe(predictions_df)
                 st.write('Mode:', predictions_df.mode()['Prediction'][0])
