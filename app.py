@@ -323,6 +323,29 @@ while True:
     #db.child("readings").remove()
     time.sleep(SLEEP)
     
+    with placeholder2.container():
+        st.write('# Human Activity Recognition')
+
+        try:
+            lstm_activity, cnn_activity, ann_activity = run_HAR()
+            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+            st.write('Last Refresh:', refresh_HAR)
+            
+            if USERNAME == "admin":
+                st.write('## Predictions: ')
+                st.write("LSTM Prediction: ", lstm_activity)
+                st.write("CNN Prediction: ", cnn_activity)
+                st.write("ANN Prediction: ", ann_activity)            
+            har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
+            
+            st.write("### Final Prediction: ", har_pred)
+            prev_har.append(har_pred)
+            
+            har_bool = True
+            
+        except:
+            st.warning('HAR System is Offline!', icon="⚠️")
+    
     with placeholder.container():
         st.write('# Indoor Positioning System')
         
@@ -355,31 +378,8 @@ while True:
             
         except:
             st.warning('IPS System is Offline!', icon="⚠️")
-            
 
-    with placeholder2.container():
-        st.write('# Human Activity Recognition')
 
-        try:
-            lstm_activity, cnn_activity, ann_activity = run_HAR()
-            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-            st.write('Last Refresh:', refresh_HAR)
-            
-            if USERNAME == "admin":
-                st.write('## Predictions: ')
-                st.write("LSTM Prediction: ", lstm_activity)
-                st.write("CNN Prediction: ", cnn_activity)
-                st.write("ANN Prediction: ", ann_activity)            
-            har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
-            
-            st.write("### Final Prediction: ", har_pred)
-            prev_har.append(har_pred)
-            
-            har_bool = True
-            
-        except:
-            st.warning('HAR System is Offline!', icon="⚠️")
-    
     placeholder3.empty()
     time.sleep(0.01)
     with placeholder3.container():
