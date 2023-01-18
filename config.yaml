@@ -9,6 +9,6 @@ credentials:
       name: Adam Smith
       password: $2b$12$RPpHTilf.sEKTEDRzJK/Ku55tN3Gd1RncslEZOHGizAQYVA.xJnTu
 cookie:
-  expiry_days: 30
+  expiry_days: 3
   key: gradproject
   name: nuharips

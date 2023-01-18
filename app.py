@@ -212,6 +212,39 @@ def get_events():
     events_df = events_df[['Event Timestamp', 'Location', 'Activity', 'Event']]
     return events_df.head(20)
 
+
+def event_handling():
+    if(ips_bool and har_bool):
+        if har_pred == 'Laying Down' and ips_pred == 'Bathroom':
+            event = "User is laying down in the Bathroom"
+            record_event(ips_pred, har_pred, event)
+            with st.sidebar:
+                st.error('Alarming activity detected!')
+            if gmail_send_message()['labelIds'] == ['SENT']:
+                with st.sidebar:
+                    st.error('Supervisor is notified!')                
+        
+    if len(prev_har) >= EVENTS_RECORDED and len(prev_ips) >= EVENTS_RECORDED:
+        ips_counter = collections.Counter(prev_ips)
+        ips_counter = list(ips_counter.most_common(1)[0])
+        har_counter = collections.Counter(prev_har)
+        har_counter = list(har_counter.most_common(1)[0])
+        if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
+            event = "User has been " + har_counter[0] + " in the " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
+            record_event(ips_pred, har_pred, event)
+            warning_ts = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+            if gmail_send_message()['labelIds'] == ['SENT']:
+                email_msg = 'Supervisor is notified.'
+            else:
+                email_msg = 'Failed to send email notification.'
+                
+            with st.sidebar:
+                st.error('['+warning_ts+']'+' Alarming activity detected! ' + email_msg)
+                
+        prev_har = []
+        prev_ips = []
+
+
 """
 @contextmanager
 def st_capture(output_func):
@@ -302,7 +335,6 @@ try:
 except:
     st.warning('Something went wrong. Please try again later or contact an administrator.', icon="⚠️")
 
-# creating a single-element container.
 placeholder = st.empty()
 placeholder2 = st.empty()
 placeholder3 = st.empty()
@@ -325,11 +357,8 @@ while True:
     
     with placeholder.container():
         st.write('# Indoor Positioning System')
-        st.write('Last Refresh:', refresh_IPS)
         
         try:
-            refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-
             predictions_df = run_IPS()
             if st.session_state["username"] == "admin":
                 st.write('## Predictions: ')
@@ -338,6 +367,8 @@ while True:
                 
             ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
             
+            refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+            st.write('Last Refresh:', refresh_IPS)
             st.write('### Final Prediction:', ips_pred)
             prev_ips.append(ips_pred)
             
@@ -359,11 +390,8 @@ while True:
 
     with placeholder2.container():
         st.write('# Human Activity Recognition')
-        st.write('Last Refresh:', refresh_HAR)
 
         try:
-            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-         
             lstm_activity, cnn_activity, ann_activity = run_HAR()
             
             if USERNAME == "admin":
@@ -372,6 +400,9 @@ while True:
                 st.write("CNN Prediction: ", cnn_activity)
                 st.write("ANN Prediction: ", ann_activity)            
             har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
+            
+            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+            st.write('Last Refresh:', refresh_HAR)
             st.write("### Final Prediction: ", har_pred)
             prev_har.append(har_pred)
             
@@ -384,33 +415,8 @@ while True:
     time.sleep(0.01)
     with placeholder3.container():
         st.write('# Events Record')
-        if(ips_bool and har_bool):
-            if har_pred == 'Laying Down' and ips_pred == 'Bathroom':
-                event = "User is laying down in the Bathroom"
-                record_event(ips_pred, har_pred, event)
-                with st.sidebar:
-                    st.error('Alarming activity detected!')
-                if gmail_send_message()['labelIds'] == ['SENT']:
-                    with st.sidebar:
-                        st.error('Supervisor is notified!')                
-            
-        if len(prev_har) == EVENTS_RECORDED and len(prev_ips) == EVENTS_RECORDED:
-            ips_counter = collections.Counter(prev_ips)
-            ips_counter = list(ips_counter.most_common(1)[0])
-            har_counter = collections.Counter(prev_har)
-            har_counter = list(har_counter.most_common(1)[0])
-            if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
-                event = "User has been " + har_counter[0] + " in the " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
-                record_event(ips_pred, har_pred, event)
-                with st.sidebar:
-                    st.error('Alarming activity detected!')
-                if gmail_send_message()['labelIds'] == ['SENT']:
-                    with st.sidebar:
-                        st.error('Supervisor is notified!')  
-            prev_har = []
-            prev_ips = []
+        event_handling()
                 
-
         # Display a static table
         events_df = get_events()
         if events_df is not None:
