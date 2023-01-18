@@ -328,15 +328,16 @@ while True:
         
         try:
             predictions_df = run_IPS()
+            refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+            st.write('Last Refresh:', refresh_IPS)
+            
             if st.session_state["username"] == "admin":
                 st.write('## Predictions: ')
                 st.dataframe(predictions_df)
                 st.write('Mode:', predictions_df.mode()['Prediction'][0])
                 
             ips_pred = np.asarray(predictions_df[predictions_df['Classifier']=='VotingClassifier'])[0][1]
-            
-            refresh_IPS = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-            st.write('Last Refresh:', refresh_IPS)
+
             st.write('### Final Prediction:', ips_pred)
             prev_ips.append(ips_pred)
             
@@ -361,6 +362,8 @@ while True:
 
         try:
             lstm_activity, cnn_activity, ann_activity = run_HAR()
+            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+            st.write('Last Refresh:', refresh_HAR)
             
             if USERNAME == "admin":
                 st.write('## Predictions: ')
@@ -369,8 +372,6 @@ while True:
                 st.write("ANN Prediction: ", ann_activity)            
             har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
             
-            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-            st.write('Last Refresh:', refresh_HAR)
             st.write("### Final Prediction: ", har_pred)
             prev_har.append(har_pred)
             
@@ -409,6 +410,14 @@ while True:
                 record_event(ips_pred, har_pred, event)
                 warning_ts = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 
+                if gmail_send_message()['labelIds'] == ['SENT']:
+                    email_msg = 'Supervisor is notified.'
+                else:
+                    email_msg = 'Failed to send email notification.'
+                    
+                with st.sidebar:
+                    st.error('['+warning_ts+']'+' Alarming activity detected! ' + email_msg)  
+                    
             prev_har = []
             prev_ips = []
                 
