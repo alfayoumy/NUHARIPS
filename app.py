@@ -213,38 +213,6 @@ def get_events():
     return events_df.head(20)
 
 
-def event_handling():
-    if(ips_bool and har_bool):
-        if har_pred == 'Laying Down' and ips_pred == 'Bathroom':
-            event = "User is laying down in the Bathroom"
-            record_event(ips_pred, har_pred, event)
-            with st.sidebar:
-                st.error('Alarming activity detected!')
-            if gmail_send_message()['labelIds'] == ['SENT']:
-                with st.sidebar:
-                    st.error('Supervisor is notified!')                
-        
-    if len(prev_har) >= EVENTS_RECORDED and len(prev_ips) >= EVENTS_RECORDED:
-        ips_counter = collections.Counter(prev_ips)
-        ips_counter = list(ips_counter.most_common(1)[0])
-        har_counter = collections.Counter(prev_har)
-        har_counter = list(har_counter.most_common(1)[0])
-        if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
-            event = "User has been " + har_counter[0] + " in the " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
-            record_event(ips_pred, har_pred, event)
-            warning_ts = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-            if gmail_send_message()['labelIds'] == ['SENT']:
-                email_msg = 'Supervisor is notified.'
-            else:
-                email_msg = 'Failed to send email notification.'
-                
-            with st.sidebar:
-                st.error('['+warning_ts+']'+' Alarming activity detected! ' + email_msg)
-                
-        prev_har = []
-        prev_ips = []
-
-
 """
 @contextmanager
 def st_capture(output_func):
@@ -415,7 +383,34 @@ while True:
     time.sleep(0.01)
     with placeholder3.container():
         st.write('# Events Record')
-        event_handling()
+        
+        if(ips_bool and har_bool):
+            if har_pred == 'Laying Down' and ips_pred == 'Bathroom':
+                event = "User is laying down in the Bathroom"
+                record_event(ips_pred, har_pred, event)
+                warning_ts = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+                
+                if gmail_send_message()['labelIds'] == ['SENT']:
+                    email_msg = 'Supervisor is notified.'
+                else:
+                    email_msg = 'Failed to send email notification.'
+                    
+                with st.sidebar:
+                    st.error('['+warning_ts+']'+' Alarming activity detected! ' + email_msg)           
+        
+        if len(prev_har) >= EVENTS_RECORDED and len(prev_ips) >= EVENTS_RECORDED:
+            ips_counter = collections.Counter(prev_ips)
+            ips_counter = list(ips_counter.most_common(1)[0])
+            har_counter = collections.Counter(prev_har)
+            har_counter = list(har_counter.most_common(1)[0])
+            
+            if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
+                event = "User has been " + har_counter[0] + " in the " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
+                record_event(ips_pred, har_pred, event)
+                warning_ts = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+                
+            prev_har = []
+            prev_ips = []
                 
         # Display a static table
         events_df = get_events()
