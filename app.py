@@ -303,7 +303,7 @@ try:
 except:
     st.warning('Something went wrong. Please try again later or contact an administrator.', icon="⚠️")
 
-placeholder = st.empty()
+placeholder1 = st.empty()
 placeholder2 = st.empty()
 placeholder3 = st.empty()
 refresh_IPS = 'Refreshing...'
@@ -323,7 +323,7 @@ while True:
     #db.child("readings").remove()
     time.sleep(SLEEP)
     
-    with placeholder2.container():
+    with placeholder1.container():
         st.write('# Human Activity Recognition')
 
         try:
@@ -346,7 +346,8 @@ while True:
         except:
             st.warning('HAR System is Offline!', icon="⚠️")
     
-    with placeholder.container():
+    
+    with placeholder2.container():
         st.write('# Indoor Positioning System')
         
         try:
