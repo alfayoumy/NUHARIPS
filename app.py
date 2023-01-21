@@ -106,7 +106,9 @@ def run_HAR():
     cols = firebase_df.columns.difference(['timestamp'])
     firebase_df[cols] = firebase_df[cols].astype(float)
     firebase_df = firebase_df.sort_values(by='timestamp', ascending=True)
-    plot_data = firebase_df[:200]
+    
+    plot_data = firebase_df[['timestamp', 'accelerometerAccelerationX', 'accelerometerAccelerationY', 'accelerometerAccelerationZ']][:200]
+    plot_data.set_index('timestamp')
     
     segments = []
 
@@ -352,14 +354,16 @@ while True:
         
         har_bool = True
         
-        fig, ax = plt.subplots()
-        plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationX'], label = "x-axis")
-        plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationY'], label = "y-axis")
-        plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationZ'], label = "z-axis")
-        plt.legend()
-        plt.ylabel("Value")
-        plt.title('Accelerometer Acceleration', fontsize = 15)
-        st.pyplot(fig)
+        st.line_chart(plot_data)
+
+        # fig, ax = plt.subplots()
+        # plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationX'], label = "x-axis")
+        # plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationY'], label = "y-axis")
+        # plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationZ'], label = "z-axis")
+        # plt.legend()
+        # plt.ylabel("Value")
+        # plt.title('Accelerometer Acceleration', fontsize = 15)
+        # st.pyplot(fig)
             
         # except:
             # st.warning('HAR System is Offline!', icon="⚠️")
