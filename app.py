@@ -22,6 +22,8 @@ import base64
 from email.message import EmailMessage
 import json
 import os
+import seaborn as sns
+
 
 #from contextlib import contextmanager, redirect_stdout
 #from io import StringIO
@@ -102,7 +104,8 @@ def run_HAR():
     cols = firebase_df.columns.difference(['timestamp'])
     firebase_df[cols] = firebase_df[cols].astype(float)
     firebase_df = firebase_df.sort_values(by='timestamp', ascending=True)
-
+    plot_data = firebase_df[:200]
+    
     segments = []
 
     for i in range(0,  firebase_df.shape[0]- n_time_steps, step):  
@@ -152,7 +155,7 @@ def run_HAR():
     cnn_activity = activities[stats.mode(np.argmax(cnn_prediction, axis=1))[0][0]]
     ann_activity = activities[stats.mode(np.argmax(ann_prediction, axis=1))[0][0]]
     
-    return lstm_activity, cnn_activity, ann_activity
+    return lstm_activity, cnn_activity, ann_activity, plot_data
 
 
 def run_IPS():
@@ -327,7 +330,7 @@ while True:
         st.write('# Human Activity Recognition')
 
         try:
-            lstm_activity, cnn_activity, ann_activity = run_HAR()
+            lstm_activity, cnn_activity, ann_activity, plot_data = run_HAR()
             refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
             st.write('Last Refresh:', refresh_HAR)
             
@@ -346,6 +349,15 @@ while True:
             prev_har.append(har_pred)
             
             har_bool = True
+            
+            fig = plt.figure(figsize=(10, 4))
+            sns.lineplot(y = 'accelerometerAccelerationX', x = 'timestamp', data = plot_data)
+            sns.lineplot(y = 'accelerometerAccelerationY', x = 'timestamp', data = plot_data)
+            sns.lineplot(y = 'accelerometerAccelerationZ', x = 'timestamp', data = plot_data)
+            plt.legend(['x-axis', 'y-axis', 'z-axis'])
+            plt.ylabel("Value")
+            plt.title(i, fontsize = 15)
+            st.pyplot(fig)
             
         except:
             st.warning('HAR System is Offline!', icon="⚠️")
