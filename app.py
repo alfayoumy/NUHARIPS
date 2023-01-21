@@ -327,7 +327,7 @@ while True:
     #db.child("esp1").remove()
     #db.child("esp2").remove()
     #db.child("esp3").remove()
-    #db.child("readings").remove()
+    db.child("readings").remove()
     time.sleep(SLEEP)
     
     with placeholder1.container():
