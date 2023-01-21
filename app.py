@@ -108,6 +108,7 @@ def run_HAR():
     firebase_df = firebase_df.sort_values(by='timestamp', ascending=True)
     
     plot_data = firebase_df[['timestamp', 'accelerometerAccelerationX', 'accelerometerAccelerationY', 'accelerometerAccelerationZ']][:200]
+    plot_data.rename(columns = {'accelerometerAccelerationX':'x-axis', 'accelerometerAccelerationY':'y-axis', 'accelerometerAccelerationZ':'z-axis'}, inplace = True)
     
     segments = []
 
@@ -353,6 +354,7 @@ while True:
         
         har_bool = True
         
+        st.write("Accelerometer Readings")
         st.line_chart(plot_data, x='timestamp')
 
         # fig, ax = plt.subplots()
