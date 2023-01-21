@@ -352,7 +352,7 @@ while True:
             
             har_bool = True
             
-            fig = plt.figure(figsize=(10, 4))
+            fig = plt.subplots()
             sns.lineplot(y = 'accelerometerAccelerationX', x = 'timestamp', data = plot_data)
             sns.lineplot(y = 'accelerometerAccelerationY', x = 'timestamp', data = plot_data)
             sns.lineplot(y = 'accelerometerAccelerationZ', x = 'timestamp', data = plot_data)
