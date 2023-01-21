@@ -353,10 +353,10 @@ while True:
         har_bool = True
         
         fig = plt.subplots()
-        sns.lineplot(y = 'accelerometerAccelerationX', x = 'timestamp', data = plot_data)
-        sns.lineplot(y = 'accelerometerAccelerationY', x = 'timestamp', data = plot_data)
-        sns.lineplot(y = 'accelerometerAccelerationZ', x = 'timestamp', data = plot_data)
-        plt.legend(['x-axis', 'y-axis', 'z-axis'])
+        plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationX'], label = "x-axis")
+        plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationY'], label = "y-axis")
+        plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationZ'], label = "z-axis")
+        plt.legend()
         plt.ylabel("Value")
         plt.title('Accelerometer Acceleration', fontsize = 15)
         st.pyplot(fig)
