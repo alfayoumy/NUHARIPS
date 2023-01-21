@@ -352,7 +352,7 @@ while True:
         
         har_bool = True
         
-        fig = plt.subplots()
+        fig, ax = plt.subplots()
         plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationX'], label = "x-axis")
         plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationY'], label = "y-axis")
         plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationZ'], label = "z-axis")
