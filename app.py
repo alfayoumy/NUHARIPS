@@ -331,38 +331,38 @@ while True:
     with placeholder1.container():
         st.write('# Human Activity Recognition')
 
-        try:
-            lstm_activity, cnn_activity, ann_activity, plot_data = run_HAR()
-            refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
-            st.write('Last Refresh:', refresh_HAR)
+        # try:
+        lstm_activity, cnn_activity, ann_activity, plot_data = run_HAR()
+        refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
+        st.write('Last Refresh:', refresh_HAR)
+        
+        if st.session_state["username"] == "admin":
+            st.write('## Predictions: ')
+            st.write("LSTM Prediction: ", lstm_activity)
+            st.write("CNN Prediction: ", cnn_activity)
+            st.write("ANN Prediction: ", ann_activity)
+        
+        if not(lstm_activity==cnn_activity) and not(lstm_activity==ann_activity) and not(cnn_activity==ann_activity):
+            har_pred = 'Unrecognized Activity'
+        else:
+            har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
+        
+        st.write("### Final Prediction: ", har_pred)
+        prev_har.append(har_pred)
+        
+        har_bool = True
+        
+        fig = plt.subplots()
+        sns.lineplot(y = 'accelerometerAccelerationX', x = 'timestamp', data = plot_data)
+        sns.lineplot(y = 'accelerometerAccelerationY', x = 'timestamp', data = plot_data)
+        sns.lineplot(y = 'accelerometerAccelerationZ', x = 'timestamp', data = plot_data)
+        plt.legend(['x-axis', 'y-axis', 'z-axis'])
+        plt.ylabel("Value")
+        plt.title(i, fontsize = 15)
+        st.pyplot(fig)
             
-            if st.session_state["username"] == "admin":
-                st.write('## Predictions: ')
-                st.write("LSTM Prediction: ", lstm_activity)
-                st.write("CNN Prediction: ", cnn_activity)
-                st.write("ANN Prediction: ", ann_activity)
-            
-            if not(lstm_activity==cnn_activity) and not(lstm_activity==ann_activity) and not(cnn_activity==ann_activity):
-                har_pred = 'Unrecognized Activity'
-            else:
-                har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
-            
-            st.write("### Final Prediction: ", har_pred)
-            prev_har.append(har_pred)
-            
-            har_bool = True
-            
-            fig = plt.subplots()
-            sns.lineplot(y = 'accelerometerAccelerationX', x = 'timestamp', data = plot_data)
-            sns.lineplot(y = 'accelerometerAccelerationY', x = 'timestamp', data = plot_data)
-            sns.lineplot(y = 'accelerometerAccelerationZ', x = 'timestamp', data = plot_data)
-            plt.legend(['x-axis', 'y-axis', 'z-axis'])
-            plt.ylabel("Value")
-            plt.title(i, fontsize = 15)
-            st.pyplot(fig)
-            
-        except:
-            st.warning('HAR System is Offline!', icon="⚠️")
+        # except:
+            # st.warning('HAR System is Offline!', icon="⚠️")
     
     
     with placeholder2.container():
