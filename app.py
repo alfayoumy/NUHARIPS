@@ -358,7 +358,7 @@ while True:
         sns.lineplot(y = 'accelerometerAccelerationZ', x = 'timestamp', data = plot_data)
         plt.legend(['x-axis', 'y-axis', 'z-axis'])
         plt.ylabel("Value")
-        plt.title(i, fontsize = 15)
+        plt.title('Accelerometer Acceleration', fontsize = 15)
         st.pyplot(fig)
             
         # except:
