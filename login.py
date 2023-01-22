@@ -1,6 +1,6 @@
+import streamlit as st
 st.set_page_config(page_title='NUHARIPS Dashboard', page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None)
 
-import streamlit as st
 import streamlit_authenticator as stauth
 import yaml
 import os
