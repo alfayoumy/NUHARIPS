@@ -346,7 +346,7 @@ while True:
                 st.write('## Predictions: ')
                 st.write("LSTM Prediction: ", lstm_activity)
                 st.write("CNN Prediction: ", cnn_activity)
-                st.write("CNN-LSTM Prediction: ", cnn_activity)
+                st.write("CNN-LSTM Prediction: ", cnn_lstm_activity)
                 st.write("ANN Prediction: ", ann_activity)
             
             if not(lstm_activity==cnn_activity) and not(lstm_activity==ann_activity) and not(cnn_activity==ann_activity):
