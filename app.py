@@ -25,6 +25,7 @@ import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+st.set_page_config(page_title='NUHARIPS Dashboard', page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None)
 
 
 #from contextlib import contextmanager, redirect_stdout
@@ -354,17 +355,8 @@ while True:
             
             har_bool = True
             
-            st.write("Accelerometer Readings")
+            st.write("#### Accelerometer Readings Plot")
             st.line_chart(plot_data, x='timestamp')
-
-            # fig, ax = plt.subplots()
-            # plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationX'], label = "x-axis")
-            # plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationY'], label = "y-axis")
-            # plt.plot(plot_data['timestamp'], plot_data['accelerometerAccelerationZ'], label = "z-axis")
-            # plt.legend()
-            # plt.ylabel("Value")
-            # plt.title('Accelerometer Acceleration', fontsize = 15)
-            # st.pyplot(fig)
                 
         except:
             st.warning('HAR System is Offline!', icon="⚠️")
