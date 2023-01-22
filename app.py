@@ -349,10 +349,10 @@ while True:
                 st.write("CNN-LSTM Prediction: ", cnn_lstm_activity)
                 st.write("ANN Prediction: ", ann_activity)
             
-            if not(lstm_activity==cnn_activity) and not(lstm_activity==ann_activity) and not(cnn_activity==ann_activity):
+            if not(lstm_activity==cnn_activity) and not(lstm_activity==cnn_lstm_activity) and not(cnn_activity==cnn_lstm_activity):
                 har_pred = 'Unrecognized Activity'
             else:
-                har_pred = stats.mode([lstm_activity, cnn_activity, ann_activity])[0][0]
+                har_pred = stats.mode([lstm_activity, cnn_activity, cnn_lstm_activity])[0][0]
             
             st.write("### Final Prediction: ", har_pred)
             prev_har.append(har_pred)
