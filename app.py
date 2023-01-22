@@ -33,7 +33,6 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 n_time_steps = 200
 n_features = 19
 step = 40
-n_epochs = 100
 activities = ['Downstairs', 'Laying Down', 'Sitting', 'Upstairs', 'Walking']
 
 def connect_firebase():
@@ -74,6 +73,9 @@ def load_HAR_model(model_name):
     elif model_name == 'cnn':
         h5_path = '/app/nuharips/HAR_models/cnn51.h5'
         json_path = '/app/nuharips/HAR_models/cnn51.json'
+    elif model_name == 'cnn-lstm':
+        h5_path = '/app/nuharips/HAR_models/cnn-lstm51.h5'
+        json_path = '/app/nuharips/HAR_models/cnn-lstm51.json'
     elif model_name == 'ann':
         h5_path = '/app/nuharips/HAR_models/ann51.h5'
         json_path = '/app/nuharips/HAR_models/ann51.json'
@@ -150,14 +152,17 @@ def run_HAR():
 
     lstm_prediction = loaded_lstm.predict(reshaped_segments)
     cnn_prediction = loaded_cnn.predict(reshaped_segments)
+    cnn_lstm_prediction = loaded_cnn_lstm.predict(reshaped_segments)
+
     ann_reshaped_segments = np.asarray(segments, dtype= np.float32).reshape(-1, n_time_steps * n_features)
     ann_prediction = loaded_ann.predict(ann_reshaped_segments)
 
     lstm_activity = activities[stats.mode(np.argmax(lstm_prediction, axis=1))[0][0]]
     cnn_activity = activities[stats.mode(np.argmax(cnn_prediction, axis=1))[0][0]]
+    cnn_lstm_activity = activities[stats.mode(np.argmax(cnn_lstm_prediction, axis=1))[0][0]]
     ann_activity = activities[stats.mode(np.argmax(ann_prediction, axis=1))[0][0]]
     
-    return lstm_activity, cnn_activity, ann_activity, plot_data
+    return lstm_activity, cnn_activity, cnn_lstm_activity, ann_activity, plot_data
 
 
 def run_IPS():
@@ -301,6 +306,7 @@ try:
 
     loaded_lstm = load_HAR_model('lstm')
     loaded_cnn = load_HAR_model('cnn')
+    loaded_cnn_lstm = load_HAR_model('cnn-lstm')
     loaded_ann = load_HAR_model('ann')
     sc_har=joblib.load('/app/nuharips/HAR_models/std_scaler5.bin')
     with st.sidebar:
@@ -332,7 +338,7 @@ while True:
         st.write('# Human Activity Recognition')
 
         try:
-            lstm_activity, cnn_activity, ann_activity, plot_data = run_HAR()
+            lstm_activity, cnn_activity, cnn_lstm_activity, ann_activity, plot_data = run_HAR()
             refresh_HAR = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
             st.write('Last Refresh:', refresh_HAR)
             
@@ -340,6 +346,7 @@ while True:
                 st.write('## Predictions: ')
                 st.write("LSTM Prediction: ", lstm_activity)
                 st.write("CNN Prediction: ", cnn_activity)
+                st.write("CNN-LSTM Prediction: ", cnn_activity)
                 st.write("ANN Prediction: ", ann_activity)
             
             if not(lstm_activity==cnn_activity) and not(lstm_activity==ann_activity) and not(cnn_activity==ann_activity):
