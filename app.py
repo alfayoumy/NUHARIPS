@@ -25,9 +25,6 @@ import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title='NUHARIPS Dashboard', page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None)
-
-
 #from contextlib import contextmanager, redirect_stdout
 #from io import StringIO
 
