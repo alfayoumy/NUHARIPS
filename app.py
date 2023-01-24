@@ -424,7 +424,7 @@ while True:
             har_counter = list(har_counter.most_common(1)[0])
             
             if ips_counter[1] >= THRESHOLD and har_counter[1] >= THRESHOLD:
-                event = "User has been " + har_counter[0] + " in the " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP/3600) + " hour(s)."
+                event = "User has been " + har_counter[0] + " in the " + ips_counter[0] + " for " + str(EVENTS_RECORDED*SLEEP//60) + " minute(s)."
                 record_event(ips_pred, har_pred, event)
                 warning_ts = datetime.datetime.now(pytz.timezone("Africa/Cairo")).strftime("%d/%m/%Y %H:%M:%S")
                 
