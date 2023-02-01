@@ -22,7 +22,6 @@ import base64
 from email.message import EmailMessage
 import json
 import os
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 #from contextlib import contextmanager, redirect_stdout
